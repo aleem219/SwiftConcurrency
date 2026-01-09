@@ -13,7 +13,8 @@ struct SwiftConcurrencyApp: App {
         WindowGroup {
 //            ContentView()
 //            DoCatchTryThrowsBootCamp()
-            DownloadImageAsync()
+//            DownloadImageAsync()
+            AsyncAwaitBootcamp()
         }
     }
 }
