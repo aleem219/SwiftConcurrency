@@ -18,7 +18,8 @@ struct SwiftConcurrencyApp: App {
 //            TaskBootcamp()
 //            TaskBootcampHomeView()
 //            StructClassActorBootcamp()
-            StructClassActorBootcampHomeView()
+//            StructClassActorBootcampHomeView()
+            ActorBoootcamp()
         }
     }
 }
