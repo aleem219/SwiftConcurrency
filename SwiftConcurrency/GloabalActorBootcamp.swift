@@ -53,7 +53,7 @@ struct GloabalActorBootcamp: View {
             }
         }
         .task {
-            await viewModel.getData()
+             viewModel.getData()
         }
     }
 }
