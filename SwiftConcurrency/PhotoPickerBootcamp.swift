@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import AVKit
 
 @MainActor
 final class PhotoPickerBootcampViewModel: ObservableObject {
@@ -24,6 +25,15 @@ final class PhotoPickerBootcampViewModel: ObservableObject {
             setImages(from: imageSelections)
         }
     }
+    
+    @Published private(set) var selectedVideoURL: URL? = nil
+    
+    @Published var videoSelection: PhotosPickerItem? = nil {
+        didSet {
+            setVideo(from: videoSelection)
+        }
+    }
+    
     
     private func setImage(from selection: PhotosPickerItem?) {
         guard let selection else { return }
@@ -62,11 +72,35 @@ final class PhotoPickerBootcampViewModel: ObservableObject {
             selectedImages = images
         }
     }
+    
+    
+    private func setVideo(from selection: PhotosPickerItem?) {
+        guard let selection else { return }
+        
+        Task {
+            do {
+                if let data = try await selection.loadTransferable(type: Data.self) {
+                    
+                    let tempURL = FileManager.default.temporaryDirectory
+                        .appendingPathComponent(UUID().uuidString + ".mov")
+                    
+                    try data.write(to: tempURL)
+                    
+                    selectedVideoURL = tempURL
+                }
+            } catch {
+                print("VIDEO ERROR:", error)
+            }
+        }
+    }
+
+
 }
 
 struct PhotoPickerBootcamp: View {
     
     @StateObject private var viewModel =  PhotoPickerBootcampViewModel()
+    @State private var player: AVPlayer? = nil
     var body: some View {
         VStack(spacing: 40) {
             Text("Hello Abdul")
@@ -103,9 +137,22 @@ struct PhotoPickerBootcamp: View {
                 }
             }
             
+            if let url = viewModel.selectedVideoURL {
+                VideoPlayer(player: player)
+                    .frame(width: 350, height: 200)
+                    .cornerRadius(12)
+                    .onAppear {
+                        player = AVPlayer(url: url)
+                        player?.play()
+                    }
+            }
             
-           
             
+            PhotosPicker(selection: $viewModel.videoSelection,
+                         matching: .videos) {
+                Text("Open Video Picker!!")
+                    .foregroundColor(.red)
+            }
         }
     }
 }
