@@ -5,9 +5,45 @@
 //  Created by Abdul Aleem on 02/02/26.
 //
 
+import UIKit
 import SwiftUI
 import PhotosUI
 import AVKit
+
+
+struct CameraPicker: UIViewControllerRepresentable {
+    
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: CameraPicker
+        init(parent: CameraPicker) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.onImagePicked(image)
+            }
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+    
+    @Environment(\.presentationMode) var presentationMode
+    var onImagePicked: (UIImage) -> Void
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+}
+
 
 @MainActor
 final class PhotoPickerBootcampViewModel: ObservableObject {
@@ -93,18 +129,22 @@ final class PhotoPickerBootcampViewModel: ObservableObject {
             }
         }
     }
-
-
+    
+    func setCameraImage(_ image: UIImage) {
+        selectedImage = image
+    }
+    
+    
+    
 }
 
 struct PhotoPickerBootcamp: View {
-    
+    @State private var showCamera = false
     @StateObject private var viewModel =  PhotoPickerBootcampViewModel()
     @State private var player: AVPlayer? = nil
     var body: some View {
         VStack(spacing: 40) {
             Text("Hello Abdul")
-            
             if let image = viewModel.selectedImage {
                 Image(uiImage: image)
                     .resizable()
@@ -122,6 +162,19 @@ struct PhotoPickerBootcamp: View {
                 Text("Open Photos Picker!!")
                     .foregroundColor(.red)
             }
+            
+            PhotosPicker(selection: $viewModel.videoSelection,
+                         matching: .videos) {
+                Text("Open Video Picker!!")
+                    .foregroundColor(.red)
+            }
+            
+            Button("Open Camera") {
+                showCamera = true
+            }
+            .foregroundColor(.blue)
+            
+            
             
             if !viewModel.selectedImages.isEmpty {
                 ScrollView(.horizontal,showsIndicators: false) {
@@ -152,6 +205,11 @@ struct PhotoPickerBootcamp: View {
                          matching: .videos) {
                 Text("Open Video Picker!!")
                     .foregroundColor(.red)
+            }
+        }
+        .sheet(isPresented: $showCamera.animation(.bouncy)) {
+            CameraPicker { image in
+                viewModel.setCameraImage(image)
             }
         }
     }
