@@ -200,12 +200,6 @@ struct PhotoPickerBootcamp: View {
                     }
             }
             
-            
-            PhotosPicker(selection: $viewModel.videoSelection,
-                         matching: .videos) {
-                Text("Open Video Picker!!")
-                    .foregroundColor(.red)
-            }
         }
         .sheet(isPresented: $showCamera.animation(.bouncy)) {
             CameraPicker { image in
