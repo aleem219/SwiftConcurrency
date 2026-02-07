@@ -21,7 +21,8 @@ struct SwiftConcurrencyApp: App {
 //            StructClassActorBootcampHomeView()
 //            ActorBoootcamp()
 //            PhotoPickerBootcamp()
-            AsyncStreamBootCamp()
+//            AsyncStreamBootCamp()
+            ObservalBootcampSwiftCocurrency()
         }
     }
 }
